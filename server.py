@@ -504,24 +504,27 @@ class PromptServer():
 
                 if os.path.isfile(file):
                     if 'preview' in request.rel_url.query:
-                        with Image.open(file) as img:
-                            preview_info = request.rel_url.query['preview'].split(';')
-                            image_format = preview_info[0]
-                            if image_format not in ['webp', 'jpeg'] or 'a' in request.rel_url.query.get('channel', ''):
-                                image_format = 'webp'
+                        try:
+                            with Image.open(file) as img:
+                                preview_info = request.rel_url.query['preview'].split(';')
+                                image_format = preview_info[0]
+                                if image_format not in ['webp', 'jpeg'] or 'a' in request.rel_url.query.get('channel', ''):
+                                    image_format = 'webp'
 
-                            quality = 90
-                            if preview_info[-1].isdigit():
-                                quality = int(preview_info[-1])
+                                quality = 90
+                                if preview_info[-1].isdigit():
+                                    quality = int(preview_info[-1])
 
-                            buffer = BytesIO()
-                            if image_format in ['jpeg'] or request.rel_url.query.get('channel', '') == 'rgb':
-                                img = img.convert("RGB")
-                            img.save(buffer, format=image_format, quality=quality)
-                            buffer.seek(0)
+                                buffer = BytesIO()
+                                if image_format in ['jpeg'] or request.rel_url.query.get('channel', '') == 'rgb':
+                                    img = img.convert("RGB")
+                                img.save(buffer, format=image_format, quality=quality)
+                                buffer.seek(0)
 
-                            return web.Response(body=buffer.read(), content_type=f'image/{image_format}',
+                                return web.Response(body=buffer.read(), content_type=f'image/{image_format}',
                                                 headers={"Content-Disposition": f"filename=\"{filename}\""})
+                        except Exception as e:
+                            pass
 
                     if 'channel' not in request.rel_url.query:
                         channel = 'rgba'
