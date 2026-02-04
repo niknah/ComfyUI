@@ -524,6 +524,7 @@ class PromptServer():
                                 return web.Response(body=buffer.read(), content_type=f'image/{image_format}',
                                                 headers={"Content-Disposition": f"filename=\"{filename}\""})
                         except Exception as e:
+                            logging.warning(f"Failed open file, sending as is: {e}")
                             pass
 
                     if 'channel' not in request.rel_url.query:
